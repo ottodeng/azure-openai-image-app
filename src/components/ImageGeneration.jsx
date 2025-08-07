@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { flushSync } from 'react-dom';
 import { Button } from '@/components/ui/button.jsx';
 import { Textarea } from '@/components/ui/textarea.jsx';
 import { Label } from '@/components/ui/label.jsx';
@@ -9,14 +10,18 @@ import { useApp } from '../contexts/AppContext.jsx';
 import AzureOpenAIService from '../services/azureOpenAI.js';
 import ParameterPanel from './ParameterPanel.jsx';
 import ImageGallery from './ImageGallery.jsx';
+import { LoadingOverlay } from './LoadingOverlay.jsx';
 
 export function ImageGeneration() {
   const { state, actions } = useApp();
   const [prompt, setPrompt] = useState('');
+  const [localLoading, setLocalLoading] = useState(false);
 
   const isConfigValid = state.config.apiKey && state.config.endpoint && state.config.deploymentName;
 
   const handleGenerate = async () => {
+    console.log('Generate button clicked');
+    
     if (!prompt.trim()) {
       actions.setGenerationError('请输入图片描述');
       return;
@@ -28,8 +33,16 @@ export function ImageGeneration() {
     }
 
     try {
-      actions.setGenerationLoading(true);
-      actions.setGenerationError(null);
+      console.log('Setting loading to true');
+      // 同时设置全局和本地loading状态
+      setLocalLoading(true);
+      flushSync(() => {
+        actions.setGenerationLoading(true);
+        actions.setGenerationError(null);
+      });
+
+      // 添加一个短暂的延迟，确保UI有时间更新
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const service = new AzureOpenAIService(state.config);
       const response = await service.generateImages({
@@ -46,8 +59,11 @@ export function ImageGeneration() {
       })));
 
     } catch (error) {
+      console.log('Error during generation:', error);
       actions.setGenerationError(error.message);
     } finally {
+      console.log('Setting loading to false');
+      setLocalLoading(false);
       actions.setGenerationLoading(false);
     }
   };
@@ -57,8 +73,17 @@ export function ImageGeneration() {
     actions.setGenerationError(null);
   };
 
+  console.log('ImageGeneration render, loading state:', state.generation.loading, 'localLoading:', localLoading);
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+    <>
+      {/* Loading Overlay - 检查两个loading状态 */}
+      <LoadingOverlay 
+        isVisible={state.generation.loading || localLoading}
+        message="正在生成图片"
+      />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
       {/* Left Panel - Input and Parameters */}
       <div className="space-y-6">
         {/* Prompt Input */}
@@ -97,10 +122,10 @@ export function ImageGeneration() {
             <div className="flex gap-2">
               <Button 
                 onClick={handleGenerate} 
-                disabled={state.generation.loading || !prompt.trim() || !isConfigValid}
+                disabled={state.generation.loading || localLoading || !prompt.trim() || !isConfigValid}
                 className="flex-1"
               >
-                {state.generation.loading ? (
+                {(state.generation.loading || localLoading) ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     生成中...
@@ -173,6 +198,7 @@ export function ImageGeneration() {
         </Card>
       </div>
     </div>
+    </>
   );
 }
 

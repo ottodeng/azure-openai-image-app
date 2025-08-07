@@ -19,7 +19,6 @@ export const OUTPUT_FORMATS = {
 
 export const INPUT_FIDELITY_LEVELS = {
   LOW: 'low',
-  MEDIUM: 'medium',
   HIGH: 'high'
 };
 
@@ -28,15 +27,14 @@ export const DEFAULT_GENERATION_PARAMS = {
   size: IMAGE_SIZES.SQUARE,
   quality: IMAGE_QUALITIES.HIGH,
   n: 1,
-  output_format: OUTPUT_FORMATS.png,
-  output_compression: 100,
-  stream: false
+  output_format: OUTPUT_FORMATS.PNG,
+  output_compression: 100
 };
 
 // Default parameters for image editing
 export const DEFAULT_EDIT_PARAMS = {
   ...DEFAULT_GENERATION_PARAMS,
-  input_fidelity: INPUT_FIDELITY_LEVELS.MEDIUM
+  input_fidelity: INPUT_FIDELITY_LEVELS.HIGH
 };
 
 // API Configuration

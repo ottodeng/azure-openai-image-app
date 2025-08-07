@@ -2,23 +2,28 @@
 
 一个基于 Azure OpenAI GPT-Image-1 模型的现代化图片生成和编辑工具。支持完整的参数配置、多图片处理和 Docker 容器化部署。
 
-## 功能特性
+[![GitHub](https://img.shields.io/github/license/ottodeng/azure-openai-image-app)](https://github.com/ottodeng/azure-openai-image-app)
+[![GitHub stars](https://img.shields.io/github/stars/ottodeng/azure-openai-image-app)](https://github.com/ottodeng/azure-openai-image-app/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/ottodeng/azure-openai-image-app)](https://github.com/ottodeng/azure-openai-image-app/network)
+
+## 🌟 功能特性
 
 ### 🎨 图片生成
 - **智能文本转图片**: 基于自然语言描述生成高质量图片
 - **多种尺寸支持**: 1024x1024 (正方形)、1024x1536 (竖版)、1536x1024 (横版)
-- **质量控制**: 低、中、高三种质量级别
+- **质量控制**: 低、中、高三种质量级别，默认高质量
 - **批量生成**: 一次生成 1-10 张图片
-- **格式选择**: 支持 png 和 jpeg 输出格式
+- **格式选择**: 支持 PNG (默认) 和 JPEG 输出格式
 - **压缩控制**: 0-100% 可调节压缩级别
-- **流式响应**: 实时查看生成过程
+- **实时反馈**: 加载悬浮框提供清晰的操作状态反馈
 
 ### ✏️ 图片编辑
 - **多图片上传**: 支持同时上传多张图片进行编辑
 - **智能编辑**: 基于文本描述对图片进行修改
-- **保真度控制**: 可调节输入保真度，平衡创意和原图保持
+- **保真度控制**: 低保真度(更多创意变化) 和 高保真度(保持原图特征)
 - **蒙版支持**: 支持上传 PNG 蒙版文件精确控制编辑区域
 - **拖拽上传**: 直观的拖拽式文件上传体验
+- **加载状态**: 编辑过程中的清晰视觉反馈
 
 ### 🛠️ 高级功能
 - **参数预设**: 保存和加载常用参数配置
@@ -28,68 +33,96 @@
 - **提示词复制**: 快速复制修订后的提示词
 - **响应式设计**: 完美适配桌面、平板和移动设备
 
-## 技术栈
+## � 页面展示
 
-- **前端框架**: React 18 + TypeScript
+![前端界面展示](frontend.png)
+
+## �🛠 技术栈
+
+- **前端框架**: React 18 + JavaScript
 - **UI 组件**: shadcn/ui + Tailwind CSS
 - **状态管理**: React Context + useReducer
 - **HTTP 客户端**: Axios
 - **文件处理**: React Dropzone
 - **构建工具**: Vite
 - **容器化**: Docker + Nginx
+- **图标库**: Lucide React
 
-## 快速开始
+## 🚀 快速开始
 
 ### 前置要求
 
 - Node.js 18+ 
 - pnpm (推荐) 或 npm
+- Docker & Docker Compose (可选)
 - Azure OpenAI 服务账户和 API 密钥
 
-### 本地开发
+### 方法一：本地开发
 
 1. **克隆项目**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ottodeng/azure-openai-image-app.git
    cd azure-openai-image-app
    ```
 
 2. **安装依赖**
    ```bash
-   pnpm install
+   pnpm install --config.strict-peer-dependencies=false
    ```
 
-3. **启动开发服务器**
+3. **配置环境变量**
+   ```bash
+   cp .env.example .env
+   # 编辑 .env 文件，填入你的 Azure OpenAI 配置
+   ```
+
+4. **启动开发服务器**
    ```bash
    pnpm run dev
    ```
 
-4. **访问应用**
+5. **访问应用**
    打开浏览器访问 `http://localhost:5173`
 
-### Docker 部署
+### 方法二：Docker 部署 (推荐)
 
-#### 使用 Docker Compose (推荐)
+1. **克隆项目**
+   ```bash
+   git clone https://github.com/ottodeng/azure-openai-image-app.git
+   cd azure-openai-image-app
+   ```
 
-1. **构建并启动容器**
+2. **配置环境变量**
+   ```bash
+   cp .env.example .env
+   # 编辑 .env 文件，填入你的 Azure OpenAI 配置
+   ```
+
+3. **使用快速启动脚本**
+   ```bash
+   ./start.sh
+   ```
+   
+   或手动执行：
    ```bash
    docker-compose up -d --build
    ```
 
-2. **访问应用**
+4. **访问应用**
    打开浏览器访问 `http://localhost:3000`
 
-#### 使用 Docker 命令
+### 方法三：纯 Docker 命令
 
-1. **构建镜像**
-   ```bash
-   docker build -t azure-openai-image-app .
-   ```
+```bash
+# 构建镜像
+docker build -t azure-openai-image-app .
 
-2. **运行容器**
-   ```bash
-   docker run -d -p 3000:8080 --name azure-openai-image-app azure-openai-image-app
-   ```
+# 运行容器
+docker run -d -p 3000:8080 \
+  --env-file .env \
+  --name azure-openai-image-app \
+  azure-openai-image-app
+```
 
 ## 配置说明
 
@@ -104,7 +137,14 @@
 
 ### 环境变量 (可选)
 
-如果需要预设配置，可以通过环境变量设置：
+如果需要预设配置，可以通过环境变量设置。在项目根目录创建 `.env` 文件：
+
+```bash
+# 复制示例文件
+cp .env.example .env
+```
+
+然后在 `.env` 文件中设置以下变量：
 
 ```bash
 VITE_AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
@@ -112,6 +152,8 @@ VITE_AZURE_OPENAI_API_KEY=your-api-key
 VITE_AZURE_OPENAI_DEPLOYMENT=gpt-image-1
 VITE_AZURE_OPENAI_API_VERSION=2025-04-01-preview
 ```
+
+**注意**: `.env` 文件包含敏感信息，请勿提交到版本控制系统。
 
 ## API 参数说明
 
@@ -121,12 +163,10 @@ VITE_AZURE_OPENAI_API_VERSION=2025-04-01-preview
 |------|------|--------|------|
 | `prompt` | string | - | 图片描述文本 (必填) |
 | `size` | string | "1024x1024" | 图片尺寸 |
-| `quality` | string | "high" | 图片质量 (low/medium/high) |
+| `quality` | string | "high" | 图片质量 (low/high) |
 | `n` | number | 1 | 生成数量 (1-10) |
-| `output_format` | string | "png" | 输出格式 (png/jpeg) |
+| `output_format` | string | "png" | 输出格式 (png/jpeg/webp) |
 | `output_compression` | number | 100 | 压缩级别 (0-100) |
-| `stream` | boolean | false | 流式响应 |
-| `user` | string | - | 用户标识 (可选) |
 
 ### 图片编辑参数
 
@@ -135,7 +175,7 @@ VITE_AZURE_OPENAI_API_VERSION=2025-04-01-preview
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
 | `images` | File[] | - | 输入图片文件 (必填) |
-| `input_fidelity` | string | "medium" | 输入保真度 (low/medium/high) |
+| `input_fidelity` | string | "high" | 输入保真度 (low/high) |
 | `mask` | File | - | 蒙版文件 (可选) |
 
 ## 项目结构
@@ -299,7 +339,7 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 如有问题或建议，请：
 
 1. 查看 [FAQ](docs/FAQ.md)
-2. 提交 [Issue](https://github.com/your-repo/issues)
+2. 提交 [Issue](https://github.com/ottodeng/azure-openai-image-app/issues)
 3. 参考 [Azure OpenAI 文档](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/dall-e?tabs=gpt-image-1)
 
 ---

@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button.jsx';
 import { Textarea } from '@/components/ui/textarea.jsx';
@@ -11,12 +12,14 @@ import { useApp } from '../contexts/AppContext.jsx';
 import AzureOpenAIService from '../services/azureOpenAI.js';
 import ParameterPanel from './ParameterPanel.jsx';
 import ImageGallery from './ImageGallery.jsx';
+import { LoadingOverlay } from './LoadingOverlay.jsx';
 
 export function ImageEdit() {
   const { state, actions } = useApp();
   const [prompt, setPrompt] = useState('');
   const [images, setImages] = useState([]);
   const [mask, setMask] = useState(null);
+  const [localLoading, setLocalLoading] = useState(false);
 
   const isConfigValid = state.config.apiKey && state.config.endpoint && state.config.deploymentName;
 
@@ -73,6 +76,8 @@ export function ImageEdit() {
   };
 
   const handleEdit = async () => {
+    console.log('Edit button clicked');
+    
     if (!prompt.trim()) {
       actions.setEditError('请输入编辑描述');
       return;
@@ -89,8 +94,16 @@ export function ImageEdit() {
     }
 
     try {
-      actions.setEditLoading(true);
-      actions.setEditError(null);
+      console.log('Setting edit loading to true');
+      // 同时设置全局和本地loading状态
+      setLocalLoading(true);
+      flushSync(() => {
+        actions.setEditLoading(true);
+        actions.setEditError(null);
+      });
+
+      // 添加一个短暂的延迟，确保UI有时间更新
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const service = new AzureOpenAIService(state.config);
       const response = await service.editImages({
@@ -109,8 +122,11 @@ export function ImageEdit() {
       })));
 
     } catch (error) {
+      console.log('Error during editing:', error);
       actions.setEditError(error.message);
     } finally {
+      console.log('Setting edit loading to false');
+      setLocalLoading(false);
       actions.setEditLoading(false);
     }
   };
@@ -128,8 +144,17 @@ export function ImageEdit() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  console.log('ImageEdit render, loading state:', state.editing.loading, 'localLoading:', localLoading);
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+    <>
+      {/* Loading Overlay - 检查两个loading状态 */}
+      <LoadingOverlay 
+        isVisible={state.editing.loading || localLoading}
+        message="正在编辑图片"
+      />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
       {/* Left Panel - Input and Parameters */}
       <div className="space-y-6">
         {/* Image Upload */}
@@ -260,10 +285,10 @@ export function ImageEdit() {
             <div className="flex gap-2">
               <Button 
                 onClick={handleEdit} 
-                disabled={state.editing.loading || !prompt.trim() || images.length === 0 || !isConfigValid}
+                disabled={state.editing.loading || localLoading || !prompt.trim() || images.length === 0 || !isConfigValid}
                 className="flex-1"
               >
-                {state.editing.loading ? (
+                {(state.editing.loading || localLoading) ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     编辑中...
@@ -336,6 +361,7 @@ export function ImageEdit() {
         </Card>
       </div>
     </div>
+    </>
   );
 }
 

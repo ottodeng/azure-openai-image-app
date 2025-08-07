@@ -34,7 +34,7 @@ function AppContent() {
             
             <div className="flex items-center space-x-2">
               <Button variant="ghost" size="sm" asChild>
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                <a href="https://github.com/ottodeng/azure-openai-image-app" target="_blank" rel="noopener noreferrer">
                   <Github className="h-4 w-4 mr-2" />
                   GitHub
                 </a>

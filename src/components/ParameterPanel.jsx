@@ -87,11 +87,11 @@ export function ParameterPanel({ params, onParamsChange, showEditParams = false 
             className="flex flex-row space-x-6"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value={OUTPUT_FORMATS.png} id="format-png" />
+              <RadioGroupItem value={OUTPUT_FORMATS.PNG} id="format-png" />
               <Label htmlFor="format-png">png</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value={OUTPUT_FORMATS.jpeg} id="format-jpeg" />
+              <RadioGroupItem value={OUTPUT_FORMATS.JPEG} id="format-jpeg" />
               <Label htmlFor="format-jpeg">jpeg</Label>
             </div>
           </RadioGroup>
@@ -128,38 +128,12 @@ export function ParameterPanel({ params, onParamsChange, showEditParams = false 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={INPUT_FIDELITY_LEVELS.LOW}>低 (更多创意变化)</SelectItem>
-                <SelectItem value={INPUT_FIDELITY_LEVELS.MEDIUM}>中等 (平衡)</SelectItem>
                 <SelectItem value={INPUT_FIDELITY_LEVELS.HIGH}>高 (保持原图特征)</SelectItem>
               </SelectContent>
             </Select>
           </div>
         )}
 
-        {/* Streaming */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="streaming">流式响应</Label>
-            <div className="text-sm text-muted-foreground">
-              启用后可以看到生成过程
-            </div>
-          </div>
-          <Switch
-            id="streaming"
-            checked={params.stream}
-            onCheckedChange={(checked) => updateParam('stream', checked)}
-          />
-        </div>
-
-        {/* User ID (Optional) */}
-        <div className="space-y-2">
-          <Label htmlFor="userId">用户ID (可选)</Label>
-          <Input
-            id="userId"
-            placeholder="用于跟踪和监控"
-            value={params.user || ''}
-            onChange={(e) => updateParam('user', e.target.value)}
-          />
-        </div>
       </CardContent>
     </Card>
   );
